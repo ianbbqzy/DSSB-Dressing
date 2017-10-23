@@ -19,7 +19,7 @@ Make sure you communicate with other team members before turning on and off the 
 ###### Resources
 - [Google Cloud Tutorial](http://cs231n.github.io/gce-tutorial/)
 
-To set up an account follow the google cloud tutorial. If you want to skip that for now, follow the steps below. (Please refer to )
+To set up an account follow the google cloud tutorial. If you want to skip that for now, directly follow the steps below. Please only refer to the tutorial after you set up an account. Instead, follow the steps below. (AKA ignore everything after "Connect to Your Virtual Instance and Download the Assignment" on the website)
 
 First, download the Google Cloud SDK that is appropriate for your platform from [here](https://cloud.google.com/sdk/docs/) and follow their installation instructions. Make sure you have run all the steps including step 4 and 5
 
@@ -79,11 +79,9 @@ it into master.
 
 Remember to run `git pull origin master` frequently to get the latest changes.
 
-#### Jupyter Notebook
+#### Jupyter Notebook (On google cloud)
 
-Do this on both your local machine and on Google cloud
-
-Run this script to setup the requirements we most likely will need for running CNN's. Extracted from stanford c231n
+Run this script to setup the requirements we most likely will need for running CNN's. Extracted from Stanford c231n. We will modify the requirements later.
 ```
 cd DSSB-Dressing
 ./setup_googlecloud.sh
@@ -93,6 +91,48 @@ From now on, run the following in the project directory before you begin deving
 
 `source .env/bin/activate`
 
+Next you need to install anaconda
+```
+~ianlee/Anaconda3-4.0.0-Linux-x86_64.sh
+
+jupyter notebook --generate-config
+
+source ~/.bashrc
+```
+
+open `~/.jupyter/jupyter_notebook_config.py` and append the following to the file
+```
+c = get_config()
+
+c.NotebookApp.ip = '*'
+
+c.NotebookApp.open_browser = False
+
+c.NotebookApp.port = 7000
+```
+
+You can run the following command to open up jupyter
+`jupyter-notebook --no-browser --port=7000`
+
 After, you can run this to exit the venv.
 
 `deactivate`
+
+#### Jupyter Notebook on your machine
+
+```
+# if you don't have this already
+sudo pip install virtualenv
+
+# Create a virtual environment
+virtualenv -p python3 .env     
+
+# Activate the virtual environment             
+source .env/bin/activate         
+
+pip install -r requirements.txt  # Install dependencies
+
+deactivate
+```
+
+Remember to source the virtualenv b4 you do anything
