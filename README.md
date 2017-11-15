@@ -2,7 +2,7 @@
 
 #### Resources
 - [Meeting Notes](https://docs.google.com/spreadsheets/d/1efbMRaKTUslNaygWW0ClOrDtDmz-vBPUSCbdVV24Pdw/edit#gid=255759195)
-
+http://cs231n.github.io/transfer-learning/
 
 #### Team members (In alphabetical order)
 - Chelsea
@@ -16,7 +16,7 @@
 #### Google Cloud (subjected to changes)
 Make sure you communicate with other team members before turning on and off the instances. Before you set up an account (you need a credit card), you can ask Ian to turn on and off the instances for you. The reason why we should use Google Cloud is that it gives us access to GPU's (in the future, we only have a dummy instance rn, but it should be good enough for most computing tasks). You are welcome to develop on your local machine, but it'd be nice if you could sync it on the instance and make sure it also runs smoothly on Google Cloud.
 
-###### Resources
+##### Resources
 - [Google Cloud Tutorial](http://cs231n.github.io/gce-tutorial/)
 
 To set up an account follow the google cloud tutorial. If you want to skip that for now, directly follow the steps below. Please only refer to the tutorial after you set up an account. Instead, follow the steps below. (AKA ignore everything after "Connect to Your Virtual Instance and Download the Assignment" on the website)
@@ -121,18 +121,28 @@ After, you can run this to exit the venv.
 #### Jupyter Notebook on your machine
 
 ```
-# if you don't have this already
-sudo pip install virtualenv
+# if you don't have this already (skip this for now. We want to use conda to create the environment)
+# sudo pip install virtualenv
 
 # Create a virtual environment
-virtualenv -p python3 .env     
+conda create -n tensorflow python=3.6
 
 # Activate the virtual environment             
-source .env/bin/activate         
+. activate tensorflow   
 
 pip install -r requirements.txt  # Install dependencies
 
-deactivate
+#conda install -c conda-forge tensorflow
+conda install tensorflow
+
+source deactivate
 ```
 
 Remember to source the virtualenv b4 you do anything
+
+
+
+#### Transfer learning
+
+https://github.com/alexisbcook/keras_transfer_cifar10/blob/master/Keras_Transfer_CIFAR10.ipynb
+http://cs231n.github.io/transfer-learning/
