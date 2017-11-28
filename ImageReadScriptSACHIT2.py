@@ -5,9 +5,9 @@ import numpy as np
 import cPickle
 
 #SET THESE VARIABLES
-clothTypeToCat = "FILL IN NAME" #Should fill in list_category_cloth.txt for regular script
-imagesAndLabels = "FILL IN NAME" #Should fill in list_category_img.txt for regular script
-saveFile = "FILL IN NAME" # e.g. foobar.pkl
+clothTypeToCat = "list_category_cloth.txt" #Should fill in list_category_cloth.txt for regular script
+imagesAndLabels = "list_category_img.txt" #Should fill in list_category_img.txt for regular script
+masterSaveFile = "test" # e.g. foobar
 RESIZE_SIZE = 48 #Change depending on what input your CNN expects
 
 #You can change these variables, but these are good defaults
@@ -64,28 +64,51 @@ def genRandomRotation(image, label):
     image = image.rotate(rd.choice(ROTATION_RANGE))
     return (np.asarray(image), label)
 
+
+def calcSaveFileParams(RESIZE_SIZE, numTransformations, fileLimitInBytes, numImages):
+    bytesPerArray = (np.zeros(shape=(RESIZE_SIZE, RESIZE_SIZE)).nbytes) + 100 #100 bytes = offset for metadata +list/label
+    bytesPerImage = numTransformations * bytesPerArray
+    numImagesPerFile = min(fileLimitInBytes / int(bytesPerImage), numImages)
+    numSaveFiles = int(np.ceil(numImages/float(numImagesPerFile)))
+    return numSaveFiles, numImagesPerFile
+
 #Call this function to open, transform, and resave images/labels in a list of tuples
 def runScript():
     print("\n\nWARNING:\n")
     print("Make sure to set correct values for the variables at the top of the script (see comment above)\n\n")
     categoryDict = getConvertedCategories(clothTypeToCat)
-    trainingData = getImagesAndLabels(imagesAndLabels, categoryDict)
-    finalTrainingData = []
-    for image, label in trainingData:
-        image = im.open(image).convert("RGB")
-        image = image.resize((RESIZE_SIZE, RESIZE_SIZE))
-        imageMtx = np.asarray(image)
-        finalTrainingData.append((imageMtx, label))
-        finalTrainingData.append(genRandomOcclusion(image, label))
-        finalTrainingData.append(genRandomShading(image, label))
-        finalTrainingData.append(genRandomRotation(image, label))
-    cPickle.dump(finalTrainingData, open(saveFile, "wb"))
-    print("Saved file at " + saveFile)
-    return None
+    initialTrainingData = getImagesAndLabels(imagesAndLabels, categoryDict)
+    saveFiles = []
+    #finalTrainingData = []
+    numSaveFiles, imagesPerFile = calcSaveFileParams(RESIZE_SIZE, 4, 2**30, len(initialTrainingData))
+    print(numSaveFiles)
+    print(imagesPerFile)
+    print(len(initialTrainingData))
+    for i in range(numSaveFiles):
+        trainingData = initialTrainingData[i*imagesPerFile: min((i+1)*imagesPerFile, len(initialTrainingData))]
+        saveFile = masterSaveFile + str(i) + ".pkl"
+        saveFiles.append(saveFile)
+        finalTrainingData = []
+        for image, label in trainingData:
+            image = im.open(image).convert("RGB")
+            image = image.resize((RESIZE_SIZE, RESIZE_SIZE))
+            imageMtx = np.asarray(image)
+            finalTrainingData.append((imageMtx, label))
+            finalTrainingData.append(genRandomOcclusion(image, label))
+            finalTrainingData.append(genRandomShading(image, label))
+            finalTrainingData.append(genRandomRotation(image, label))
+        cPickle.dump(finalTrainingData, open(saveFile, "wb"))
+        print("Saved file at " + saveFile)
+    return saveFiles
+
+#make a new savefile for every 1 gb worth of images,
+#to calculate number of savefiles, see how many images per savefile (each image is ((size of RS*RS np array + 100 bytes)*4)
+#for each savefile, get transformations, build list ,dump to savefile
+
 
 #Function used for testing, don't call
-def examine():
-    pics = cPickle.load(open(saveFile, "rb"))
+def examine(extension):
+    pics = cPickle.load(open(masterSaveFile+extension+".pkl", "rb"))
     print("Loaded Pics")
     for i in range(len(pics)):
         pic, label = pics[i]
